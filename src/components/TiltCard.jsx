@@ -69,15 +69,15 @@ export default function TiltCard({
   const tiltProps = reduceMotion
     ? {}
     : {
-        style: {
-          rotateX,
-          rotateY,
-          transformStyle: 'preserve-3d',
-          transformPerspective: 1400,
-        },
-        animate: { z: hovered ? lift : 0, scale: hovered ? 1.015 : 1 },
-        transition: spring,
-      }
+      style: {
+        rotateX,
+        rotateY,
+        transformStyle: 'preserve-3d',
+        transformPerspective: 1400,
+      },
+      animate: { z: hovered ? lift : 0, scale: hovered ? 1.015 : 1 },
+      transition: spring,
+    }
 
   return (
     <motion.div
@@ -90,9 +90,9 @@ export default function TiltCard({
       style={
         float
           ? {
-              '--fr-float': `${floatDistance}px`,
-              animation: `floatSlow 9s ease-in-out ${floatDelay}ms infinite`,
-            }
+            '--fr-float': `${floatDistance}px`,
+            animation: `floatSlow 9s ease-in-out ${floatDelay}ms infinite`,
+          }
           : undefined
       }
     >
@@ -102,9 +102,8 @@ export default function TiltCard({
           <motion.span
             aria-hidden="true"
             style={{ backgroundImage: glareLayer, borderRadius: innerRadius }}
-            className={`pointer-events-none absolute inset-0 transition-opacity duration-300 ${
-              hovered ? 'opacity-100' : 'opacity-0'
-            }`}
+            className={`pointer-events-none absolute inset-0 transition-opacity duration-300 ${hovered ? 'opacity-100' : 'opacity-0'
+              }`}
           />
         ) : null}
       </motion.div>

@@ -62,7 +62,7 @@ function HighlightCard({ item, index, onSelect }) {
         <div
           className={`pointer-events-none absolute -inset-6 bg-linear-to-br ${tone.ring} opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100`}
         />
-        <div className="relative flex w-14 shrink-0 flex-col items-center gap-2 sm:w-full sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+        <div className="relative flex w-[4.5rem] shrink-0 flex-col items-center gap-2 sm:w-full sm:flex-row sm:items-start sm:justify-between sm:gap-3">
           <span
             className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-line bg-bg-deep/60 text-[1.45rem] shadow-inner transition-transform duration-500 group-hover:-rotate-6 group-hover:scale-110 sm:h-14 sm:w-14 sm:rounded-2xl sm:text-[1.7rem]"
             aria-hidden="true"
@@ -70,7 +70,7 @@ function HighlightCard({ item, index, onSelect }) {
             {item.emoji}
           </span>
           <span
-            className={`max-w-full shrink rounded-full border px-1.5 py-1 text-center text-[0.5rem] leading-tight font-bold uppercase tracking-[0.04em] sm:px-2.5 sm:text-[0.62rem] sm:tracking-[0.14em] sm:whitespace-nowrap ${tone.chip}`}
+            className={`max-w-full min-w-16 shrink rounded-full border px-1.5 py-1 text-center text-[0.5rem] leading-tight font-bold uppercase tracking-[0.04em] whitespace-nowrap sm:px-2.5 sm:text-[0.62rem] sm:tracking-[0.14em] ${tone.chip}`}
           >
             {item.tag}
           </span>
