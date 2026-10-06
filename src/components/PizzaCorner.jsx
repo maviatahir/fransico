@@ -42,7 +42,7 @@ export default function PizzaCorner() {
         />
 
         <div className="mt-12 flex flex-col gap-16">
-          <div className="flex flex-col gap-6 overflow-hidden rounded-[1.75rem] border border-line bg-surface/70 p-5 backdrop-blur sm:flex-row sm:items-center sm:justify-between sm:p-7">
+          <div className="flex flex-col gap-5 overflow-hidden rounded-[1.75rem] border border-line bg-surface/70 p-4 backdrop-blur sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:p-7">
             <div className="max-w-md">
               <h3 className="flex items-center gap-2 font-display text-lg font-extrabold text-ink">
                 <Flame size={18} className="text-crimson" />
@@ -54,16 +54,16 @@ export default function PizzaCorner() {
               </p>
             </div>
 
-            <div className="grid shrink-0 grid-cols-3 gap-3">
+            <div className="grid w-full shrink-0 grid-cols-3 gap-2 sm:w-auto sm:gap-3">
               {Object.entries(PIZZA_PRICES).map(([size, price]) => (
                 <div
                   key={size}
-                  className="rounded-2xl border border-gold/35 bg-linear-to-b from-gold/12 to-transparent px-4 py-3 text-center"
+                  className="min-w-0 rounded-xl border border-gold/35 bg-linear-to-b from-gold/12 to-transparent px-2 py-2.5 text-center sm:rounded-2xl sm:px-4 sm:py-3"
                 >
-                  <p className="text-[0.64rem] font-bold uppercase tracking-[0.18em] text-gold-ink">
+                  <p className="text-[0.56rem] font-bold uppercase tracking-[0.1em] text-gold-ink sm:text-[0.64rem] sm:tracking-[0.18em]">
                     {size}
                   </p>
-                  <p className="mt-1 font-display text-lg font-extrabold text-ink">
+                  <p className="mt-1 whitespace-nowrap font-display text-[0.78rem] font-extrabold text-ink sm:text-lg">
                     {formatPrice(price)}
                   </p>
                 </div>

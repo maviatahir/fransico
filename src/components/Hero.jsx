@@ -57,40 +57,42 @@ function HighlightCard({ item, index, onSelect }) {
         type="button"
         onClick={() => onSelect(item.name)}
         aria-label={`View ${item.name} in the menu`}
-        className="group relative flex h-full w-full cursor-pointer flex-col overflow-hidden rounded-[1.6rem] border border-line bg-surface/85 p-5 text-left shadow-elev-2 backdrop-blur-xl transition-[border-color,box-shadow] duration-300 hover:border-gold/50 hover:shadow-elev-3"
+        className="group relative flex h-full w-full cursor-pointer flex-row items-center gap-3 overflow-hidden rounded-[1.4rem] border border-line bg-surface/85 p-3.5 text-left shadow-elev-2 backdrop-blur-xl transition-[border-color,box-shadow] duration-300 hover:border-gold/50 hover:shadow-elev-3 sm:flex-col sm:items-stretch sm:gap-0 sm:rounded-[1.6rem] sm:p-5"
       >
         <div
           className={`pointer-events-none absolute -inset-6 bg-linear-to-br ${tone.ring} opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100`}
         />
-        <div className="relative flex items-start justify-between gap-3">
+        <div className="relative flex w-14 shrink-0 flex-col items-center gap-2 sm:w-full sm:flex-row sm:items-start sm:justify-between sm:gap-3">
           <span
-            className="grid h-14 w-14 place-items-center rounded-2xl border border-line bg-bg-deep/60 text-[1.7rem] shadow-inner transition-transform duration-500 group-hover:-rotate-6 group-hover:scale-110"
+            className="grid h-12 w-12 shrink-0 place-items-center rounded-xl border border-line bg-bg-deep/60 text-[1.45rem] shadow-inner transition-transform duration-500 group-hover:-rotate-6 group-hover:scale-110 sm:h-14 sm:w-14 sm:rounded-2xl sm:text-[1.7rem]"
             aria-hidden="true"
           >
             {item.emoji}
           </span>
           <span
-            className={`shrink-0 rounded-full border px-2.5 py-1 text-[0.62rem] font-bold uppercase tracking-[0.14em] whitespace-nowrap ${tone.chip}`}
+            className={`max-w-full shrink rounded-full border px-1.5 py-1 text-center text-[0.5rem] leading-tight font-bold uppercase tracking-[0.04em] sm:px-2.5 sm:text-[0.62rem] sm:tracking-[0.14em] sm:whitespace-nowrap ${tone.chip}`}
           >
             {item.tag}
           </span>
         </div>
 
-        <h3 className="relative mt-4 font-display text-[1.05rem] font-bold leading-snug text-ink">
-          {item.name}
-        </h3>
-        <p className="relative mt-1 text-[0.78rem] leading-relaxed text-faint">{item.blurb}</p>
+        <div className="relative flex min-w-0 flex-1 flex-col sm:contents">
+          <h3 className="break-words font-display text-[0.95rem] font-bold leading-snug text-ink sm:mt-4 sm:text-[1.05rem]">
+            {item.name}
+          </h3>
+          <p className="mt-1 break-words text-[0.75rem] leading-relaxed text-faint sm:text-[0.78rem]">{item.blurb}</p>
 
-        <div className="relative mt-auto flex items-end justify-between gap-2 pt-4">
-          <span className="font-display text-lg font-extrabold whitespace-nowrap text-ink">
-            {formatPrice(item.price)}
-          </span>
-          <span
-            className={`inline-flex items-center gap-1 text-[0.7rem] font-bold uppercase tracking-wider whitespace-nowrap transition-transform duration-300 group-hover:translate-x-0.5 ${tone.text}`}
-          >
-            View
-            <ArrowRight size={13} />
-          </span>
+          <div className="relative mt-auto flex flex-wrap items-end justify-between gap-x-2 gap-y-1 pt-2 sm:flex-nowrap sm:pt-4">
+            <span className="font-display text-base font-extrabold whitespace-nowrap text-ink sm:text-lg">
+              {formatPrice(item.price)}
+            </span>
+            <span
+              className={`inline-flex items-center gap-1 text-[0.62rem] font-bold uppercase tracking-wider whitespace-nowrap transition-transform duration-300 group-hover:translate-x-0.5 sm:text-[0.7rem] ${tone.text}`}
+            >
+              View
+              <ArrowRight size={13} />
+            </span>
+          </div>
         </div>
 
         <span className="pointer-events-none absolute inset-x-6 bottom-0 h-px bg-linear-to-r from-transparent via-gold/60 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
@@ -131,7 +133,7 @@ export default function Hero({ onQueryChange }) {
       </div>
 
       <div className="container-fr">
-        <div className="grid items-center gap-14 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-12">
+        <div className="grid items-center gap-10 sm:gap-14 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-12">
           <motion.div style={{ y: copyY, opacity: fade }}>
             <motion.span
               initial={{ opacity: 0, y: 18 }}
@@ -143,7 +145,7 @@ export default function Hero({ onQueryChange }) {
                 <span className="absolute h-2 w-2 rounded-full bg-emerald-400 animate-pulse-ring" />
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
               </span>
-              Open now · Delivery across the town
+              Delivery across the town
             </motion.span>
 
             <motion.h1
@@ -232,7 +234,7 @@ export default function Hero({ onQueryChange }) {
 
           <motion.div
             style={{ y: cardY }}
-            className="grid grid-cols-2 gap-4 sm:gap-5"
+            className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5"
           >
             {HERO_HIGHLIGHTS.map((item, index) => (
               <motion.div
@@ -254,13 +256,13 @@ export default function Hero({ onQueryChange }) {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.85 }}
-              className="col-span-2 mt-1 flex items-center justify-between gap-4 rounded-[1.6rem] border border-gold/25 bg-linear-to-r from-gold/12 via-crimson/10 to-transparent p-5 backdrop-blur-xl"
+              className="col-span-1 mt-1 mb-8 flex flex-col gap-3 rounded-[1.4rem] border border-gold/25 bg-linear-to-r from-gold/12 via-crimson/10 to-transparent p-4 backdrop-blur-xl sm:col-span-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:rounded-[1.6rem] sm:p-5"
             >
-              <div className="flex items-center gap-3">
+              <div className="flex min-w-0 items-center gap-3">
                 <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-linear-to-br from-gold to-crimson text-ink-on-accent">
                   <Sparkles size={19} />
                 </span>
-                <div>
+                <div className="min-w-0">
                   <p className="font-display text-[0.95rem] font-bold text-ink">
                     Combo deals
                   </p>
@@ -274,7 +276,7 @@ export default function Hero({ onQueryChange }) {
               <button
                 type="button"
                 onClick={() => scrollToSection('deals')}
-                className="h-10 shrink-0 cursor-pointer rounded-full border border-gold/40 px-4 text-[0.78rem] font-bold whitespace-nowrap text-gold-ink transition-colors hover:bg-gold hover:text-ink-on-accent"
+                className="h-10 w-full shrink-0 cursor-pointer rounded-full border border-gold/40 px-4 text-[0.78rem] font-bold whitespace-nowrap text-gold-ink transition-colors hover:bg-gold hover:text-ink-on-accent sm:w-auto"
               >
                 View deals
               </button>
@@ -283,8 +285,8 @@ export default function Hero({ onQueryChange }) {
         </div>
       </div>
 
-      <div className="container-fr mt-20 lg:mt-24">
-        <div className="relative overflow-hidden rounded-full border border-line bg-surface/60 py-3 backdrop-blur">
+      <div className="mx-0 mt-20 w-full max-w-none px-0 lg:mt-24">
+        <div className="relative w-full overflow-hidden rounded-none border-y border-x-0 border-line bg-surface/60 py-3 backdrop-blur">
           <div className="flex w-max animate-marquee gap-10 pr-10">
             {[0, 1].map((copy) => (
               <div key={copy} className="flex shrink-0 items-center gap-10" aria-hidden={copy === 1}>
