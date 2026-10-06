@@ -1,0 +1,398 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ==========================================================================
+   THEME TOKENS · contrast audited so every text token clears WCAG AA (4.5:1)
+   against the surface it sits on, in both themes.
+
+   Light:  bg #FAFAFA / surface #FFFFFF / text #111827 · #1F2937
+           muted #4B5563 · faint #5B6470 · gold #D97706 (ink #B45309)
+           crimson #D01C1C · pizza red #CC1F1C → #7E1310 · border #E5E7EB
+   Dark:   bg #0F0F14 / surface #16161D / text #F3F4F6 · #FFFFFF
+           muted #B8B8C4 · faint #9CA3AF · gold #F59E0B (ink #FBBF24)
+           crimson #F4585A · pizza red #EC4A4A → #A32320 · border #27272A
+
+   Dark canvas is lifted ~2% off pure black (#0B0B0E → #0F0F14) so it reads
+   as a designed near-black instead of a dead void. Depth ramp stays monotonic:
+   bg #0F0F14 → bg-deep #0D0D10 → surface-muted #13131A → surface #16161D.
+   ========================================================================== */
+:root {
+  --fr-bg: #fafafa;
+  --fr-bg-deep: #f3f4f6;
+  --fr-surface: #ffffff;
+  --fr-surface-2: #ffffff;
+  --fr-surface-muted: #f4f4f5;
+  --fr-border: #e5e7eb;
+  --fr-border-strong: #d1d5db;
+  --fr-text: #111827;
+  --fr-text-secondary: #1f2937;
+  --fr-text-muted: #4b5563;
+  --fr-text-faint: #5b6470;
+  --fr-gold: #d97706;
+  --fr-gold-ink: #b45309;
+  --fr-crimson: #d01c1c;
+  --fr-crimson-deep: #9f1414;
+  /* Dedicated to the pizza-deal price badge so the rest of the crimson
+     family (toppings, danger states, halos) is left untouched. */
+  --fr-pizza-red: #cc1f1c;
+  --fr-pizza-red-deep: #7e1310;
+  --fr-pizza-red-glow: rgba(204, 31, 28, 0.42);
+  /* Ink for text sitting on gold/crimson fills. The gold ramp is light enough
+     in both themes (6.2:1 light, 9.2:1 dark) to clear AA with this ink. */
+  --fr-ink-on-accent: #0b0b0e;
+  --fr-elev-1: 0 1px 2px rgba(17, 24, 39, 0.05), 0 8px 24px -18px rgba(17, 24, 39, 0.28);
+  --fr-elev-2: 0 2px 4px rgba(17, 24, 39, 0.05), 0 18px 40px -22px rgba(17, 24, 39, 0.34);
+  --fr-elev-3: 0 4px 8px rgba(17, 24, 39, 0.06), 0 30px 62px -26px rgba(17, 24, 39, 0.42);
+  --fr-glass: rgba(255, 255, 255, 0.82);
+  --fr-glass-border: rgba(17, 24, 39, 0.08);
+  --fr-shadow: 0 18px 50px -24px rgba(17, 24, 39, 0.3);
+  --fr-glow: 0 0 0 1px rgba(217, 119, 6, 0.2), 0 22px 60px -30px rgba(217, 119, 6, 0.5);
+  --fr-grid-line: rgba(17, 24, 39, 0.055);
+  --fr-mark-bg: rgba(217, 119, 6, 0.2);
+  --fr-mark-ink: #92400e;
+  --fr-danger-bg: #fef2f2;
+  --fr-danger-border: #d01c1c;
+  color-scheme: light;
+}
+
+.dark {
+  --fr-bg: #0f0f14;
+  --fr-bg-deep: #0d0d10;
+  --fr-surface: #16161d;
+  --fr-surface-2: #1c1c24;
+  --fr-surface-muted: #13131a;
+  --fr-border: #27272a;
+  --fr-border-strong: #3f3f46;
+  --fr-text: #f3f4f6;
+  --fr-text-secondary: #ffffff;
+  --fr-text-muted: #b8b8c4;
+  --fr-text-faint: #9ca3af;
+  --fr-gold: #f59e0b;
+  --fr-gold-ink: #fbbf24;
+  --fr-crimson: #f4585a;
+  --fr-crimson-deep: #c0363a;
+  --fr-pizza-red: #ec4a4a;
+  --fr-pizza-red-deep: #a32320;
+  --fr-pizza-red-glow: rgba(236, 74, 74, 0.42);
+  --fr-ink-on-accent: #0b0b0e;
+  --fr-elev-1: 0 1px 2px rgba(0, 0, 0, 0.5), 0 10px 26px -20px rgba(0, 0, 0, 0.9);
+  --fr-elev-2: 0 2px 6px rgba(0, 0, 0, 0.55), 0 20px 44px -24px rgba(0, 0, 0, 0.95);
+  --fr-elev-3: 0 6px 14px rgba(0, 0, 0, 0.6), 0 34px 70px -28px rgba(0, 0, 0, 1);
+  --fr-glass: rgba(22, 22, 29, 0.78);
+  --fr-glass-border: rgba(255, 255, 255, 0.09);
+  --fr-shadow: 0 24px 60px -28px rgba(0, 0, 0, 0.85);
+  --fr-glow: 0 0 0 1px rgba(245, 158, 11, 0.28), 0 24px 70px -32px rgba(245, 158, 11, 0.45);
+  --fr-grid-line: rgba(255, 255, 255, 0.045);
+  --fr-mark-bg: rgba(245, 158, 11, 0.24);
+  --fr-mark-ink: #fde68a;
+  --fr-danger-bg: rgba(244, 88, 90, 0.12);
+  --fr-danger-border: #f4585a;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--fr-bg);
+  --color-bg-deep: var(--fr-bg-deep);
+  --color-surface: var(--fr-surface);
+  --color-surface-2: var(--fr-surface-2);
+  --color-surface-muted: var(--fr-surface-muted);
+  --color-line: var(--fr-border);
+  --color-line-strong: var(--fr-border-strong);
+  --color-ink: var(--fr-text);
+  --color-ink-soft: var(--fr-text-secondary);
+  --color-muted: var(--fr-text-muted);
+  --color-faint: var(--fr-text-faint);
+  --color-gold: var(--fr-gold);
+  --color-gold-ink: var(--fr-gold-ink);
+  --color-crimson: var(--fr-crimson);
+  --color-crimson-deep: var(--fr-crimson-deep);
+  --color-pizza-red: var(--fr-pizza-red);
+  --color-pizza-red-deep: var(--fr-pizza-red-deep);
+  --color-ink-on-accent: var(--fr-ink-on-accent);
+  --color-danger-border: var(--fr-danger-border);
+
+  --shadow-elev-1: var(--fr-elev-1);
+  --shadow-elev-2: var(--fr-elev-2);
+  --shadow-elev-3: var(--fr-elev-3);
+
+  --font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, 'Segoe UI', sans-serif;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, 'Segoe UI', sans-serif;
+
+  --shadow-card: var(--fr-shadow);
+  --shadow-glow: var(--fr-glow);
+
+  --animate-marquee: marquee 34s linear infinite;
+  --animate-pulse-ring: pulseRing 3.2s ease-out infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes floatSlow {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(calc(var(--fr-float, 12px) * -1)) rotate(1.4deg);
+  }
+}
+
+@keyframes pulseRing {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.7;
+  }
+  70% {
+    transform: scale(1.55);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-6px);
+  }
+  40% {
+    transform: translateX(5px);
+  }
+  60% {
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+}
+
+@layer base {
+  * {
+    border-color: var(--fr-border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 6.75rem;
+    -webkit-text-size-adjust: 100%;
+    /* Background lives on html as well as body so the canvas behind the page
+       is always themed. This is what prevents a light strip below the footer
+       when the document is shorter than the viewport on one theme. */
+    background-color: var(--fr-bg);
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--fr-bg);
+    color: var(--fr-text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+
+  #root {
+    min-height: 100%;
+    background-color: var(--fr-bg);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    letter-spacing: -0.032em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: var(--fr-gold);
+    color: var(--fr-ink-on-accent);
+  }
+
+  /* ---- Cursor enforcement ---------------------------------------------- */
+  button:not(:disabled),
+  [role='button']:not(:disabled),
+  label,
+  summary,
+  a[href],
+  select,
+  option,
+  input[type='checkbox']:not(:disabled),
+  input[type='radio']:not(:disabled) {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [role='button'][aria-disabled='true'] {
+    cursor: not-allowed;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--fr-bg-deep);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--fr-gold) 45%, transparent);
+    border-radius: 999px;
+    border: 2px solid var(--fr-bg-deep);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--fr-gold);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--fr-gold);
+    outline-offset: 2px;
+  }
+
+  input,
+  button,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  textarea {
+    cursor: text;
+  }
+
+  input[type='search']::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+}
+
+@utility container-fr {
+  width: 100%;
+  margin-inline: auto;
+  max-width: 84rem;
+  padding-inline: 1.25rem;
+  @media (width >= 40rem) {
+    padding-inline: 2rem;
+  }
+  @media (width >= 80rem) {
+    padding-inline: 2.5rem;
+  }
+}
+
+@utility glass {
+  background-color: var(--fr-glass);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid var(--fr-glass-border);
+}
+
+@utility text-gradient-gold {
+  background-image: linear-gradient(100deg, var(--fr-gold) 0%, #fcd34d 42%, var(--fr-crimson) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+@utility text-gradient-ink {
+  background-image: linear-gradient(
+    180deg,
+    var(--fr-text) 25%,
+    color-mix(in oklab, var(--fr-text) 55%, transparent) 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+@utility bg-grid {
+  background-image: linear-gradient(to right, var(--fr-grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--fr-grid-line) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+@utility preserve-3d {
+  transform-style: preserve-3d;
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility sheen {
+  background-size: 200% 100%;
+  transition-property: background-position, box-shadow, color, border-color, opacity, transform;
+  &:hover {
+    background-position: 100% 0;
+  }
+}
+
+@utility aurora {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(90px);
+  pointer-events: none;
+  will-change: transform;
+}
+
+@utility fr-mark {
+  background-color: var(--fr-mark-bg);
+  color: var(--fr-mark-ink);
+  border-radius: 5px;
+  padding: 0 3px;
+  font-weight: 800;
+  box-shadow: inset 0 -1px 0 color-mix(in oklab, var(--fr-gold-ink) 45%, transparent);
+}
+
+@utility field-invalid {
+  border-color: var(--fr-danger-border) !important;
+  background-color: var(--fr-danger-bg);
+  animation: shake 0.4s ease-in-out;
+}
+
+@utility pb-safe {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+@media (hover: none) {
+  .hover-lift {
+    transform: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .hover-lift {
+    transform: none !important;
+  }
+}
