@@ -98,11 +98,11 @@ assert(html.includes('1.5 Ltr Cold Drink'), 'combo deal 23')
 assert(html.includes('5 Large Pizzas'), 'pizza deal 10')
 
 assert(html.includes('0321-2121946'), 'direct call number')
-assert(html.includes('0314-2182556'), 'primary whatsapp number')
+assert(html.includes('0314-4551199'), 'primary whatsapp number')
 assert(html.includes('0333-0226233'), 'easypaisa number')
 assert(html.includes('Delivery charges apply based on location.'), 'delivery note')
 assert(!/Free delivery/i.test(html), 'fabricated free delivery claim must be removed')
-assert(html.includes('wa.me/923142182556'), 'whatsapp deep link')
+assert(html.includes('wa.me/923144551199'), 'whatsapp deep link')
 assert(html.includes('tel:+923212121946'), 'tel deep link')
 
 /* ---- Single customer-facing WhatsApp channel -------------------------- */

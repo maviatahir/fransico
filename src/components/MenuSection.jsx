@@ -57,7 +57,7 @@ export default function MenuSection({ query, onQueryChange }) {
   const category = MENU_CATEGORIES.find((item) => item.id === activeId) ?? MENU_CATEGORIES[0]
 
   return (
-    <section id="menu" className="relative py-24 lg:py-32">
+    <section id="menu" className="relative py-16 sm:py-20 lg:py-24">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-80 bg-linear-to-b from-bg-deep to-transparent"

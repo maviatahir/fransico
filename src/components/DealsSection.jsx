@@ -31,7 +31,7 @@ const PERKS = [
 
 export default function DealsSection() {
   return (
-    <section id="deals" className="relative py-24 lg:py-32">
+    <section id="deals" className="relative py-16 sm:py-20 lg:py-24">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"

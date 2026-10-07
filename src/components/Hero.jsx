@@ -120,7 +120,11 @@ export default function Hero({ onQueryChange }) {
   }
 
   return (
-    <section id="home" ref={sectionRef} className="relative overflow-hidden pt-28 lg:pt-36">
+    <section
+      id="home"
+      ref={sectionRef}
+      className="relative overflow-hidden pt-24 pb-16 sm:pt-28 sm:pb-20 lg:pb-24"
+    >
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-grid opacity-70 [mask-image:radial-gradient(ellipse_70%_60%_at_50%_30%,black,transparent)]" />
         <motion.div

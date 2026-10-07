@@ -55,7 +55,7 @@ export default function ContactSection() {
         : 'text-crimson bg-crimson/12'
 
   return (
-    <section id="contact" className="relative py-24 pb-16 lg:py-32 lg:pb-20">
+    <section id="contact" className="relative py-16 sm:py-20 lg:py-24">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"

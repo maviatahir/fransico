@@ -16,12 +16,12 @@
   /* Operational numbers. Only orderWhatsapp is customer-facing anywhere in
      the UI — the rest stay in data for the restaurant, not the customer. */
   whatsapp: [
-    { display: '0314-2182556', tel: '+923142182556', wa: '923142182556' },
+    { display: '0314-4551199', tel: '+923144551199', wa: '923144551199' },
     { display: '0334-8415111', tel: '+923348415111', wa: '923348415111' },
   ],
 }
 
-export const DEFAULT_WHATSAPP = '923142182556'
+export const DEFAULT_WHATSAPP = '923144551199'
 
 const orderWhatsappEntry = CONTACT.whatsapp.find((entry) => entry.wa === DEFAULT_WHATSAPP)
 

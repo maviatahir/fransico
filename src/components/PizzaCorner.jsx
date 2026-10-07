@@ -24,7 +24,7 @@ export default function PizzaCorner() {
   const dealItems = PIZZA_DEAL_ITEMS
 
   return (
-    <section id="pizza-corner" className="relative py-24 lg:py-32">
+    <section id="pizza-corner" className="relative py-16 sm:py-20 lg:py-24">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
@@ -145,7 +145,7 @@ export default function PizzaCorner() {
             </div>
           ) : null}
 
-          <div>
+          <div className="pt-12">
             <div className="mb-5 flex items-center gap-3">
               <span className="text-xl">🍟</span>
               <h3 className="font-display text-xl font-extrabold text-ink">
