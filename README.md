@@ -33,13 +33,13 @@ Fransico is a modern, responsive restaurant website and ordering experience buil
 1. Clone the repository:
 
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/maviatahir/fransico.git
 ```
 
 2. Navigate to the project:
 
 ```bash
-cd Fransico
+cd fransico
 ```
 
 3. Install dependencies:
@@ -55,6 +55,14 @@ npm run dev
 ```
 
 5. Open the local development URL shown in the terminal.
+
+## Smoke Checks
+
+Run the project's smoke validation to catch common SSR and build regressions:
+
+```bash
+npm run smoke
+```
 
 ## Production Build
 
