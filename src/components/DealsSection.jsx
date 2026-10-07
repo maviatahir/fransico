@@ -5,7 +5,7 @@ import DealCard from './DealCard'
 import { SectionHeading } from './ui/Reveal'
 import {
   CHEAPEST_COMBO,
-  COMBO_DEALS,
+  COMBO_DEAL_ITEMS,
   CONTACT,
   PIZZA_DEAL_ITEMS,
   formatPrice,
@@ -45,7 +45,7 @@ export default function DealsSection() {
           eyebrow="Combo Deals"
           title="Sharing bundles,"
           highlight="priced per set"
-          description={`${COMBO_DEALS.length} combo deals, each with a main, a side and a drink. Add one to your cart and build the rest of the order around it.`}
+          description={`${COMBO_DEAL_ITEMS.length} combo deals, each with a main, a side and a drink. Add one to your cart and build the rest of the order around it.`}
         />
 
         <div className="mt-12 flex flex-col gap-8">
@@ -56,10 +56,10 @@ export default function DealsSection() {
               </span>
               <div>
                 <p className="text-[0.68rem] font-bold uppercase tracking-[0.16em] text-muted">
-                  Combo Deals 1 — {COMBO_DEALS.length}
+                  Combo Deals 1 — {COMBO_DEAL_ITEMS.length}
                 </p>
                 <p className="font-display text-lg font-extrabold text-ink">
-                  {COMBO_DEALS.length} bundles · from{' '}
+                  {COMBO_DEAL_ITEMS.length} bundles · from{' '}
                   <span className="text-gold-ink">{formatPrice(CHEAPEST_COMBO.price)}</span>
                 </p>
               </div>
@@ -78,8 +78,8 @@ export default function DealsSection() {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {COMBO_DEALS.map((deal, index) => (
-              <DealCard key={deal.n} deal={deal} index={index} accent="gold" />
+            {COMBO_DEAL_ITEMS.map((deal, index) => (
+              <DealCard key={deal.id} deal={deal} index={index} accent="gold" />
             ))}
           </div>
 

@@ -1,8 +1,10 @@
-﻿export const CONTACT = {
+﻿export const DELIVERY_CHARGE = 100
+
+export const CONTACT = {
   brand: 'Fransico',
   tagline: 'BBQ, Chinese, Fast Food & Pizza',
   slogan: "Fransico — It's All About Being Different",
-  deliveryNote: 'Delivery charges apply based on location.',
+  deliveryNote: `Flat delivery charge of Rs. ${DELIVERY_CHARGE} applies to every order.`,
   primaryCall: {
     label: 'Direct Call',
     display: '0321-2121946',
@@ -400,7 +402,7 @@ export const PIZZA_DEALS = [
    Deals are NOT menu categories. COMBO_DEALS are presented by DealsSection
    and PIZZA_DEALS by PizzaCorner; both stay searchable via ALL_ITEMS below.
    ========================================================================== */
-export const MENU_CATEGORIES = [
+const RAW_MENU_CATEGORIES = [
   {
     id: 'barbq',
     label: 'Bar B.Q',
@@ -449,11 +451,21 @@ function decorate(items, prefix, category, categoryId, group = '') {
   }))
 }
 
-const menuItems = MENU_CATEGORIES.filter((category) => category.groups).flatMap((category) =>
+const menuItems = RAW_MENU_CATEGORIES.filter((category) => category.groups).flatMap((category) =>
   category.groups.flatMap((group) =>
     decorate(group.items, category.id, category.label, category.id, group.title ?? ''),
   ),
 )
+
+export const MENU_CATEGORIES = RAW_MENU_CATEGORIES.map((category) => ({
+  ...category,
+  groups: category.groups.map((group) => ({
+    ...group,
+    items: menuItems.filter(
+      (item) => item.categoryId === category.id && item.group === (group.title ?? ''),
+    ),
+  })),
+}))
 
 const pizzaItems = [
   ...decorate(
@@ -472,7 +484,7 @@ const pizzaItems = [
 
 const comboItems = COMBO_DEALS.map((deal) => ({
   id: `combo-deal-${deal.n}`,
-  name: `Deal ${deal.n}`,
+  name: `Combo Deal ${deal.n}`,
   desc: deal.desc,
   price: deal.price,
   number: deal.n,

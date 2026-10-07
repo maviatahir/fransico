@@ -1,6 +1,6 @@
 import { createContext } from 'react'
 
-import { PIZZA_TOPPINGS, formatPrice, ITEMS_BY_ID } from '../data/menu'
+import { DELIVERY_CHARGE, PIZZA_TOPPINGS, formatPrice, ITEMS_BY_ID } from '../data/menu'
 
 export const CartContext = createContext(null)
 
@@ -24,6 +24,9 @@ export function buildLine(item, { variant = null, toppings = [], qty = 1 } = {})
     itemId: item.id,
     name: item.name,
     category: item.category,
+    categoryId: item.categoryId,
+    kind: item.kind,
+    number: item.number,
     variant,
     toppings: [...toppings],
     unitPrice: price,
@@ -31,11 +34,20 @@ export function buildLine(item, { variant = null, toppings = [], qty = 1 } = {})
   }
 }
 
-export function lineLabel(line) {
-  const parts = [line.name]
+export function lineLabel(line, name = line.name) {
+  const parts = [name]
   if (line.variant) parts.push(`(${line.variant})`)
   if (line.toppings.length) parts.push(`+ ${line.toppings.join(' + ')}`)
   return parts.join(' ')
+}
+
+function orderLineLabel(line) {
+  if (line.kind === 'deal') {
+    return line.name
+  }
+
+  const name = line.categoryId === 'pizza' ? `${line.name} Pizza` : line.name
+  return lineLabel(line, name)
 }
 
 export function addLine(cart, line) {
@@ -65,14 +77,16 @@ export function removeLine(cart, key) {
 }
 
 export function cartTotals(cart) {
-  return cart.reduce(
-    (acc, line) => {
-      acc.count += line.qty
-      acc.total += line.unitPrice * line.qty
-      return acc
-    },
-    { count: 0, total: 0 },
-  )
+  const subtotal = cart.reduce((sum, line) => sum + line.unitPrice * line.qty, 0)
+  const count = cart.reduce((sum, line) => sum + line.qty, 0)
+  const deliveryCharge = count > 0 ? DELIVERY_CHARGE : 0
+
+  return {
+    count,
+    subtotal,
+    deliveryCharge,
+    total: subtotal + deliveryCharge,
+  }
 }
 
 export function cartReducer(state, action) {
@@ -99,41 +113,47 @@ export function cartReducer(state, action) {
  * one included here. No emoji, no decorative dividers — just something a real
  * customer would type.
  *
- *   *FRANSICO — ORDER REQUEST*
+ *   FRANSICO — ORDER REQUEST
  *
- *   *Delivery Address*
+ *   Delivery Address
  *   House 12, Block A
  *
- *   *Order*
+ *   Order Details
  *   • 2x Chicken Tikka (Chest) — Rs. 800
- *   • 1x Deal 4 — Rs. 810
+ *   • 1x Malai Pizza (Regular) — Rs. 749
+ *   • 1x Combo Deal 4 — Rs. 810
  *
- *   *Order Total*
- *   Rs. 1,610
+ *   Items Subtotal: Rs. 1,510
+ *   Delivery Charges: Rs. 100 (Fixed)
+ *
+ *   Grand Total: Rs. 1,610
  *
  *   Please confirm my order and delivery time.
  */
 export function buildOrderMessage({ lines, address }) {
-  const total = lines.reduce((sum, line) => sum + line.unitPrice * line.qty, 0)
+  const subtotal = lines.reduce((sum, line) => sum + line.unitPrice * line.qty, 0)
+  const deliveryCharge = lines.length > 0 ? DELIVERY_CHARGE : 0
+  const grandTotal = subtotal + deliveryCharge
 
   const body = lines.map((line) => {
     const lineTotal = line.unitPrice * line.qty
-    return `• ${line.qty}x ${lineLabel(line)} — ${formatPrice(lineTotal)}`
+    return `• ${line.qty}x ${orderLineLabel(line)} — ${formatPrice(lineTotal)}`
   })
 
   return [
     '*FRANSICO — ORDER REQUEST*',
     '',
+    '*Order Details*',
+    ...body,
+    '',
     '*Delivery Address*',
     address,
     '',
-    '*Order*',
-    ...body,
+    `_Items Subtotal: ${formatPrice(subtotal)}_`,
+    `_Delivery Charges: ${formatPrice(deliveryCharge)}_`,
+    `*Grand Total: ${formatPrice(grandTotal)}*`,
     '',
-    '*Order Total*',
-    formatPrice(total),
-    '',
-    'Please confirm my order and delivery time.',
+    '_Please confirm my order and delivery time._',
   ].join('\n')
 }
 

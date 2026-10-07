@@ -30,6 +30,8 @@ export default function CartDrawer() {
   const {
     lines,
     count,
+    subtotal,
+    deliveryCharge,
     total,
     isCartOpen,
     closeCart,
@@ -119,9 +121,6 @@ export default function CartDrawer() {
     }
 
     setOrdered(true)
-    setAddress('')
-    setAddressTouched(false)
-    clear()
   }
 
   return (
@@ -144,22 +143,23 @@ export default function CartDrawer() {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', stiffness: 320, damping: 34 }}
-            className="absolute inset-y-0 right-0 flex w-full max-w-[26rem] flex-col border-l border-line bg-bg shadow-elev-3"
+            className="absolute inset-y-0 right-0 flex w-full max-w-[28rem] flex-col border-l border-line bg-bg shadow-elev-3"
           >
-            <header className="flex items-center justify-between gap-3 border-b border-line px-5 py-4">
-              <div className="flex items-center gap-3">
-                <span className="grid h-10 w-10 place-items-center rounded-xl bg-gold/12 text-gold-ink">
-                  <ShoppingBag size={18} />
+            <header className="flex items-center justify-between gap-4 border-b border-line bg-surface/70 px-5 py-5 sm:px-6">
+              <div className="flex min-w-0 items-center gap-3.5">
+                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-gold/20 bg-gold/12 text-gold-ink">
+                  <ShoppingBag size={20} />
                 </span>
-                <div>
+                <div className="min-w-0">
                   <h2
-                  id="cart-title"
-                  className="font-display text-[1.05rem] font-extrabold text-ink"
-                >
-                  Your Cart
-                </h2>
-                  <p className="text-[0.7rem] text-muted">
-                    {count} {count === 1 ? 'item' : 'items'} · {formatPrice(total)}
+                    id="cart-title"
+                    className="font-display text-lg font-extrabold leading-tight text-ink"
+                  >
+                    Your Cart
+                  </h2>
+                  <p className="mt-1 text-[0.78rem] text-muted">
+                    {count} {count === 1 ? 'item' : 'items'}
+                    {count > 0 ? ` · ${formatPrice(total)} total` : ''}
                   </p>
                 </div>
               </div>
@@ -197,7 +197,17 @@ export default function CartDrawer() {
               </div>
             ) : (
               <>
-                <ul className="flex-1 divide-y divide-line overflow-y-auto overscroll-contain px-5">
+                {ordered ? (
+                  <p
+                    role="status"
+                    className="mx-5 mt-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-[0.78rem] leading-relaxed text-ink sm:mx-6"
+                  >
+                    Your order details are open in WhatsApp. This cart is still saved here until you
+                    clear it.
+                  </p>
+                ) : null}
+
+                <ul className="min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain px-5 py-4 sm:px-6">
                   <AnimatePresence initial={false}>
                     {lines.map((line) => (
                       <motion.li
@@ -207,87 +217,97 @@ export default function CartDrawer() {
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: 24, height: 0 }}
                         transition={{ duration: 0.25 }}
-                        className="flex gap-3 py-4"
+                        className="rounded-2xl border border-line bg-surface p-4 shadow-elev-1"
                       >
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate font-display text-[0.92rem] font-bold text-ink">
-                            {lineLabel(line)}
-                          </p>
-                          <p className="mt-0.5 text-[0.68rem] uppercase tracking-[0.12em] text-faint">
-                            {line.category}
-                          </p>
-                          <div className="mt-2.5 flex items-center gap-2">
-                            <div className="flex items-center gap-0.5 rounded-full border border-line-strong bg-surface px-0.5 py-0.5">
-                              <button
-                                type="button"
-                                onClick={() => decrement(line.key)}
-                                disabled={line.qty <= 1}
-                                aria-label={`Decrease ${lineLabel(line)}`}
-                                className="grid h-9 w-9 cursor-pointer place-items-center rounded-full text-muted transition-colors hover:bg-surface-muted hover:text-ink disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-transparent"
-                              >
-                                <Minus size={14} />
-                              </button>
-                              <span className="min-w-6 text-center text-[0.82rem] font-extrabold text-ink">
-                                {line.qty}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() => increment(line.key)}
-                                disabled={line.qty >= MAX_QTY}
-                                aria-label={`Increase ${lineLabel(line)}`}
-                                className="grid h-9 w-9 cursor-pointer place-items-center rounded-full text-muted transition-colors hover:bg-surface-muted hover:text-ink disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-transparent"
-                              >
-                                <Plus size={14} />
-                              </button>
-                            </div>
-
-                            <button
-                              type="button"
-                              onClick={() => remove(line.key)}
-                              aria-label={`Remove ${lineLabel(line)}`}
-                              className="grid h-9 w-9 cursor-pointer place-items-center rounded-full border border-line-strong text-faint transition-colors hover:border-crimson/60 hover:text-crimson"
-                            >
-                              <Trash2 size={14} />
-                            </button>
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="break-words font-display text-[0.92rem] font-bold leading-snug text-ink">
+                              {lineLabel(line)}
+                            </p>
+                            <p className="mt-1 text-[0.66rem] font-semibold uppercase tracking-[0.12em] text-faint">
+                              {line.category}
+                            </p>
+                          </div>
+                          <div className="shrink-0 text-right">
+                            <p className="font-display text-base font-extrabold leading-tight text-ink">
+                              {formatPrice(line.unitPrice * line.qty)}
+                            </p>
+                            <p className="mt-1 text-[0.68rem] text-faint">
+                              {formatPrice(line.unitPrice)} each
+                            </p>
                           </div>
                         </div>
 
-                        <div className="text-right">
-                          <p className="text-[0.65rem] text-faint">
-                            {formatPrice(line.unitPrice)} each
-                          </p>
-                          <p className="mt-0.5 font-display text-[0.98rem] font-extrabold text-ink">
-                            {formatPrice(line.unitPrice * line.qty)}
-                          </p>
+                        <div className="mt-3 flex items-center justify-between border-t border-line pt-3">
+                          <div className="inline-flex items-center gap-1 rounded-full border border-line-strong bg-bg px-1 py-1">
+                            <button
+                              type="button"
+                              onClick={() => decrement(line.key)}
+                              disabled={line.qty <= 1}
+                              aria-label={`Decrease ${lineLabel(line)}`}
+                              className="grid h-8 w-8 cursor-pointer place-items-center rounded-full text-muted transition-colors hover:bg-surface-muted hover:text-ink disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-transparent"
+                            >
+                              <Minus size={14} />
+                            </button>
+                            <span className="min-w-7 text-center text-[0.82rem] font-extrabold text-ink">
+                              {line.qty}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => increment(line.key)}
+                              disabled={line.qty >= MAX_QTY}
+                              aria-label={`Increase ${lineLabel(line)}`}
+                              className="grid h-8 w-8 cursor-pointer place-items-center rounded-full text-muted transition-colors hover:bg-surface-muted hover:text-ink disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-transparent"
+                            >
+                              <Plus size={14} />
+                            </button>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => remove(line.key)}
+                            aria-label={`Remove ${lineLabel(line)}`}
+                            className="inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-[0.72rem] font-semibold text-faint transition-colors hover:bg-crimson/10 hover:text-crimson"
+                          >
+                            <Trash2 size={14} />
+                            Remove
+                          </button>
                         </div>
                       </motion.li>
                     ))}
                   </AnimatePresence>
                 </ul>
 
-                <div className="border-t border-line bg-surface/60 px-5 py-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-[0.85rem] text-muted">
-                      {count} {count === 1 ? 'item' : 'items'}
-                    </span>
-                    <div className="text-right">
-                      <p className="text-[0.62rem] font-bold uppercase tracking-[0.16em] text-faint">
-                        Order Total
-                      </p>
-                      <p className="font-display text-xl font-extrabold leading-tight text-ink">
-                        {formatPrice(total)}
-                      </p>
+                <div className="max-h-[64dvh] shrink-0 overflow-y-auto overscroll-contain border-t border-line bg-bg/95 px-5 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-4 backdrop-blur sm:px-6">
+                  <div className="rounded-2xl border border-line bg-surface p-4 shadow-elev-1">
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <h3 className="font-display text-[0.9rem] font-bold text-ink">Order summary</h3>
+                      <span className="rounded-full bg-gold/12 px-2.5 py-1 text-[0.68rem] font-bold text-gold-ink">
+                        {count} {count === 1 ? 'item' : 'items'}
+                      </span>
                     </div>
+                    <dl className="space-y-2 text-[0.8rem]">
+                      <div className="flex items-center justify-between gap-3 text-muted">
+                        <dt>Items Subtotal</dt>
+                        <dd>{formatPrice(subtotal)}</dd>
+                      </div>
+                      <div className="flex items-center justify-between gap-3 text-muted">
+                        <dt>Delivery Charge</dt>
+                        <dd>{formatPrice(deliveryCharge)}</dd>
+                      </div>
+                      <div className="flex items-center justify-between gap-3 border-t border-line pt-2.5 font-bold text-ink">
+                        <dt>Grand Total</dt>
+                        <dd className="font-display text-xl">{formatPrice(total)}</dd>
+                      </div>
+                    </dl>
+                    <p className="mt-2.5 flex items-center gap-1.5 text-[0.68rem] leading-relaxed text-faint">
+                      <ShieldCheck size={13} className="shrink-0 text-emerald-600 dark:text-emerald-400" />
+                      {CONTACT.deliveryNote}
+                    </p>
                   </div>
-                  <p className="mt-1.5 flex items-center gap-1.5 text-[0.7rem] text-faint">
-                    <ShieldCheck size={12} className="shrink-0 text-emerald-600 dark:text-emerald-400" />
-                    {CONTACT.deliveryNote}
-                  </p>
-                </div>
 
-                <div className="border-t border-line px-5 py-4">
-                  <label htmlFor="cart-address" className="flex flex-col gap-1.5">
-                    <span className="text-[0.68rem] font-bold uppercase tracking-[0.14em] text-muted">
+                  <label htmlFor="cart-address" className="mt-4 flex flex-col gap-2">
+                    <span className="text-[0.7rem] font-bold uppercase tracking-[0.12em] text-muted">
                       Delivery Address <span className="text-crimson">*</span>
                     </span>
                     <textarea
@@ -302,7 +322,7 @@ export default function CartDrawer() {
                       aria-invalid={showError}
                       aria-describedby="cart-address-hint"
                       className={cn(
-                        'w-full resize-none rounded-xl border bg-surface px-3.5 py-3 text-[0.85rem] text-ink transition-colors outline-none placeholder:text-faint focus:border-gold',
+                        'w-full resize-y rounded-xl border bg-surface px-3.5 py-3 text-[0.85rem] leading-relaxed text-ink transition-colors outline-none placeholder:text-faint focus:border-gold',
                         showError ? 'field-invalid border-line-strong' : 'border-line-strong',
                       )}
                     />
@@ -321,7 +341,7 @@ export default function CartDrawer() {
                   {popupBlocked ? (
                     <p
                       role="status"
-                      className="mt-4 flex items-start gap-2 rounded-xl border border-crimson/30 bg-crimson/10 px-3.5 py-3 text-[0.78rem] text-ink"
+                      className="mt-3 flex items-start gap-2 rounded-xl border border-crimson/30 bg-crimson/10 px-3.5 py-3 text-[0.78rem] text-ink"
                     >
                       <AlertCircle size={15} className="mt-px shrink-0 text-crimson" />
                       <span>
@@ -342,23 +362,34 @@ export default function CartDrawer() {
                     </p>
                   ) : null}
 
-                  <Button
-                    variant="whatsapp"
-                    size="lg"
-                    onClick={checkout}
-                    disabled={!addressValid}
-                    aria-describedby="cart-address-hint"
-                    className="mt-4 w-full"
-                  >
-                    <MessageCircle size={18} />
-                    Continue to WhatsApp
-                  </Button>
+                  <div className="sticky bottom-0 -mx-5 mt-3 border-t border-line bg-bg/95 px-5 py-3 backdrop-blur sm:-mx-6 sm:px-6">
+                    <Button
+                      variant="whatsapp"
+                      size="lg"
+                      onClick={checkout}
+                      disabled={!addressValid || ordered}
+                      aria-describedby="cart-address-hint"
+                      className="w-full"
+                    >
+                      <MessageCircle size={18} />
+                      {ordered ? 'WhatsApp opened · cart saved' : 'Continue to WhatsApp'}
+                    </Button>
+                  </div>
 
-                  <div className="mt-2.5 grid grid-cols-2 gap-2">
+                  <div className="mt-2 grid grid-cols-2 gap-2">
                     <Button variant="ghost" size="sm" onClick={closeCart}>
                       Continue browsing
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={clear}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        clear()
+                        setOrdered(false)
+                        setAddress('')
+                        setAddressTouched(false)
+                      }}
+                    >
                       Clear cart
                     </Button>
                   </div>

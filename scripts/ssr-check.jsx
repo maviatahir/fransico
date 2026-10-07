@@ -100,7 +100,7 @@ assert(html.includes('5 Large Pizzas'), 'pizza deal 10')
 assert(html.includes('0321-2121946'), 'direct call number')
 assert(html.includes('0314-4551199'), 'primary whatsapp number')
 assert(html.includes('0333-0226233'), 'easypaisa number')
-assert(html.includes('Delivery charges apply based on location.'), 'delivery note')
+assert(html.includes('Flat delivery charge of Rs. 100 applies to every order.'), 'delivery note')
 assert(!/Free delivery/i.test(html), 'fabricated free delivery claim must be removed')
 assert(html.includes('wa.me/923144551199'), 'whatsapp deep link')
 assert(html.includes('tel:+923212121946'), 'tel deep link')
@@ -353,8 +353,12 @@ assert(drawerSource.includes('Delivery Address'), 'mandatory delivery address fi
 assert(/aria-required="true"/.test(drawerSource), 'address field is marked required')
 /* The CTA must be genuinely disabled, not merely validated on click. */
 assert(
-  /disabled=\{!addressValid\}/.test(drawerSource),
-  'whatsapp CTA is disabled while the address is invalid',
+  /disabled=\{!addressValid \|\| ordered\}/.test(drawerSource),
+  'whatsapp CTA is disabled for an invalid address or an already opened order',
+)
+assert(
+  /This cart is still saved here until you\s+clear it\./.test(drawerSource),
+  'opening WhatsApp keeps the order visible in the cart',
 )
 assert(
   /const addressValid = addressValue\.length >= ADDRESS_MIN/.test(drawerSource),
@@ -638,9 +642,15 @@ const expectedSubtotal = 749 + 380 * 2 + 899 * 2
 assert(totals.count === 5, `item count = ${totals.count}, expected 5`)
 assert(cart.cartItemCount(state.lines) === 5, 'cartItemCount matches')
 assert(
-  totals.total === expectedSubtotal,
-  `subtotal = ${totals.total}, expected ${expectedSubtotal}`,
+  totals.subtotal === expectedSubtotal,
+  `subtotal = ${totals.subtotal}, expected ${expectedSubtotal}`,
 )
+assert(totals.deliveryCharge === 100, 'non-empty cart includes one fixed delivery charge')
+assert(
+  totals.total === expectedSubtotal + 100,
+  `grand total = ${totals.total}, expected ${expectedSubtotal + 100}`,
+)
+assert(totals.deliveryCharge === data.DELIVERY_CHARGE, 'cart delivery fee matches shared fee constant')
 
 state = cart.cartReducer(state, { type: 'decrement', key: legLine.key })
 state = cart.cartReducer(state, { type: 'decrement', key: legLine.key })
@@ -649,6 +659,8 @@ state = cart.cartReducer(state, { type: 'remove', key: topped.key })
 assert(!state.lines.find((l) => l.key === topped.key), 'remove drops the line')
 state = cart.cartReducer(state, { type: 'clear' })
 assert(state.lines.length === 0, 'clear empties the cart')
+const emptyTotals = cart.cartTotals(state.lines)
+assert(emptyTotals.deliveryCharge === 0 && emptyTotals.total === 0, 'empty cart has no delivery charge')
 
 const message = cart.buildOrderMessage({
   lines: [
@@ -658,15 +670,166 @@ const message = cart.buildOrderMessage({
   address: 'House 12, Street 4, Model Town, Lahore',
 })
 
-assert(message.startsWith('*FRANSICO — ORDER REQUEST*'), 'order message header')
-assert(message.includes('*Delivery Address*\nHouse 12, Street 4, Model Town, Lahore'), 'address line')
-assert(message.includes('*Order*'), 'order header')
-assert(message.includes('*Order Total*'), 'total row')
-assert(!message.includes('Total Amount'), 'must not call it a final payable total')
-assert(message.includes(`• 1x ${malaiTikka.name} (Leg) — Rs. 380`), 'numbered item line')
+assert(message.startsWith('FRANSICO — ORDER REQUEST'), 'order message header')
+assert(message.includes('Delivery Address\nHouse 12, Street 4, Model Town, Lahore'), 'address line')
+assert(message.includes('Order Details'), 'order header')
+assert(message.includes('Items Subtotal: Rs. 1,429'), 'items subtotal row')
+assert(message.includes('Delivery Charges: Rs. 100 (Fixed)'), 'WhatsApp message includes fixed delivery charge')
+assert(message.includes('Grand Total: Rs. 1,529'), 'WhatsApp grand total includes delivery')
 assert(
-  message.includes(`• 1x ${pizzaBase.name} (Regular) + Cheese + Meat — Rs. 1,049`),
-  'toppings line',
+  message.includes(`Grand Total: ${data.formatPrice(1429 + data.DELIVERY_CHARGE)}`),
+  'WhatsApp grand total is calculated from subtotal plus one delivery fee',
+)
+assert(!message.includes('Order Total'), 'old ambiguous total label is removed')
+assert(!message.includes('Total Amount'), 'must not call it a final payable total')
+assert(
+  message.includes(`• 1x ${malaiTikka.name} (Leg) — Rs. 380`),
+  'WhatsApp item line uses the full product name and selected variant',
+)
+assert(
+  message.includes(`• 1x ${pizzaBase.name} Pizza (Regular) + Cheese + Meat — Rs. 1,049`),
+  'pizza line adds Pizza after its full name and preserves size and toppings',
+)
+assert(!message.includes('[Bar B.Q]'), 'WhatsApp product lines omit category labels')
+
+const malaiBoti = data.ALL_ITEMS.find((item) => item.name === 'Chicken Malai Boti')
+const malaiPizza = data.ALL_ITEMS.find((item) => item.name === 'Malai' && item.categoryId === 'pizza')
+const seekhPizza = data.SEEKH_PIZZA_ITEM
+const malaiRoll = data.ALL_ITEMS.find((item) => item.name === 'Chicken Malai Roll')
+const comboDeal = data.ITEMS_BY_ID['combo-deal-20']
+const pizzaDeal = data.ITEMS_BY_ID['pizza-deal-1']
+assert(
+  comboDeal?.name === 'Combo Deal 20' && comboDeal.id === 'combo-deal-20',
+  'combo deal catalogue record has cart-ready name and identity',
+)
+const getCategoryItem = (categoryId, name) =>
+  data.MENU_CATEGORIES.find((category) => category.id === categoryId)?.groups
+    .flatMap((group) => group.items)
+    .find((item) => item.name === name)
+const chatniRoll = getCategoryItem('rolls', 'Chicken Chatni Roll')
+const chineseRice = getCategoryItem('chinese', 'Chicken Fried Rice')
+const zingerBurger = getCategoryItem('fastfood', 'Chicken Zinger Burger')
+assert(
+  malaiBoti &&
+    malaiPizza &&
+    seekhPizza &&
+    malaiRoll &&
+    comboDeal &&
+    pizzaDeal &&
+    chatniRoll &&
+    chineseRice &&
+    zingerBurger,
+  'context examples exist',
+)
+assert(
+  [chatniRoll, chineseRice, zingerBurger].every((item) => item.id),
+  'items used by the category tabs have stable ids',
+)
+
+const contextMessage = cart.buildOrderMessage({
+  lines: [
+    cart.buildLine(malaiTikka, { variant: 'Chest' }),
+    cart.buildLine(malaiBoti),
+    cart.buildLine(malaiRoll),
+    cart.buildLine(malaiPizza, { variant: 'Large' }),
+    cart.buildLine(seekhPizza, { variant: 'Regular' }),
+    cart.buildLine(comboDeal),
+    cart.buildLine(pizzaDeal),
+  ],
+  address: 'Model Town, Lahore',
+})
+assert(
+  contextMessage.includes('• 1x Chicken Malai Tikka (Chest) — Rs. 420'),
+  'BBQ item uses its full name and selected variant',
+)
+assert(
+  contextMessage.includes('• 1x Chicken Malai Boti — Rs. 550'),
+  'BBQ boti uses its full product name',
+)
+assert(
+  contextMessage.includes('• 1x Chicken Malai Roll — Rs. 220'),
+  'roll uses its full product name without extra category info',
+)
+assert(
+  contextMessage.includes('• 1x Malai Pizza (Large) — Rs. 1,099'),
+  'same-name pizza is identified by adding Pizza after its full name',
+)
+assert(
+  contextMessage.includes('• 1x Seekh Kabab Flavour Pizza (Regular) — Rs. 995'),
+  'Seekh Kabab pizza also gets the Pizza suffix',
+)
+assert(
+  contextMessage.includes('• 1x Combo Deal 20 — Rs. 1,200'),
+  'combo deal message uses its cart-ready name',
+)
+assert(
+  contextMessage.includes('• 1x Pizza Deal 1 — Rs. 449'),
+  'pizza deal message uses only its type and number',
+)
+assert(!contextMessage.includes('1 Plate Malai Boti'), 'WhatsApp deals omit long descriptions')
+assert(!contextMessage.includes('[Fransico Pizza]'), 'WhatsApp pizza lines omit category labels')
+assert(
+  cart.lineLabel(cart.buildLine(comboDeal)) === 'Combo Deal 20',
+  'combo deal has a visible cart label',
+)
+
+let mixedOrderState = { lines: [] }
+mixedOrderState = cart.cartReducer(mixedOrderState, {
+  type: 'add',
+  line: cart.buildLine(chatniRoll),
+})
+assert(
+  mixedOrderState.lines.length === 1 && mixedOrderState.lines[0].qty === 1,
+  'adding one roll creates one cart line with quantity one',
+)
+mixedOrderState = cart.cartReducer(mixedOrderState, {
+  type: 'add',
+  line: cart.buildLine(chineseRice),
+})
+assert(
+  mixedOrderState.lines.length === 2 &&
+    mixedOrderState.lines[0].itemId !== mixedOrderState.lines[1].itemId &&
+    mixedOrderState.lines.every((line) => line.qty === 1),
+  'adding a Chinese item after a roll creates a second independent cart line',
+)
+for (const item of [malaiTikka, pizzaBase, zingerBurger]) {
+  mixedOrderState = cart.cartReducer(mixedOrderState, {
+    type: 'add',
+    line: cart.buildLine(item, { variant: item === malaiTikka ? 'Chest' : item === pizzaBase ? 'Regular' : null }),
+  })
+}
+const mixedOrder = cart.buildOrderMessage({
+  lines: mixedOrderState.lines,
+  address: 'Model Town, Lahore',
+})
+assert(mixedOrderState.lines.length === 5, 'adding a mixed order keeps all five distinct cart lines')
+assert(
+  mixedOrderState.lines.find((line) => line.itemId === chatniRoll.id)?.qty === 1,
+  'a single Chatni Roll stays quantity one in a mixed order',
+)
+assert(
+  (mixedOrder.match(/• 1x /g) ?? []).length === 5,
+  'WhatsApp message preserves one line for each mixed-order item',
+)
+assert(
+  mixedOrder.includes('• 1x Chicken Chatni Roll — Rs. 180'),
+  'mixed order contains the single Chatni Roll with its full name',
+)
+assert(
+  mixedOrder.includes('• 1x Chicken Fried Rice — Rs. 499'),
+  'mixed order retains the Chinese item by its full name',
+)
+assert(
+  mixedOrder.includes('• 1x Chicken Malai Tikka (Chest) — Rs. 420'),
+  'mixed order retains the BBQ item by its full name',
+)
+assert(
+  mixedOrder.includes(`• 1x ${pizzaBase.name} Pizza (Regular) — Rs. 749`),
+  'mixed order retains the pizza with its Pizza suffix',
+)
+assert(
+  mixedOrder.includes('• 1x Chicken Zinger Burger — Rs. 420'),
+  'mixed order retains the fast-food item by its full name',
 )
 
 /* A multi-quantity line must show the line total, not the unit price. */
@@ -674,8 +837,12 @@ const bulk = cart.buildOrderMessage({
   lines: [cart.buildLine(malaiTikka, { variant: 'Leg', qty: 2 })],
   address: 'Model Town, Lahore',
 })
-assert(bulk.includes(`• 2x ${malaiTikka.name} (Leg) — Rs. 760`), 'quantity line shows line total')
-assert(bulk.includes('*Order Total*\nRs. 760'), 'total matches quantity line total')
+assert(
+  bulk.includes(`• 2x ${malaiTikka.name} (Leg) — Rs. 760`),
+  'quantity line shows full product name, variant and line total',
+)
+assert(bulk.includes('Items Subtotal: Rs. 760'), 'bulk subtotal matches quantity line total')
+assert(bulk.includes('Grand Total: Rs. 860'), 'bulk grand total includes delivery charge once')
 assert(message.includes('Please confirm my order'), 'confirmation request')
 assert(!message.includes('undefined'), 'order message has no undefined values')
 
@@ -693,11 +860,57 @@ const single = cart.buildOrderMessage({
   lines: [legLine],
   address: 'Model Town, Lahore',
 })
-assert(single.includes('*Delivery Address*\nModel Town, Lahore'), 'address always present')
+assert(single.includes('Delivery Address\nModel Town, Lahore'), 'address always present')
 
 /* Every searchable item must have one stable id. */
 const ids = data.ALL_ITEMS.map((item) => item.id)
 assert(new Set(ids).size === ids.length, 'searchable item ids are unique')
+const tabItems = data.MENU_CATEGORIES.flatMap((category) =>
+  category.groups.flatMap((group) => group.items),
+)
+const tabItemIds = tabItems.map((item) => item.id)
+assert(tabItems.every((item) => item.id && item.categoryId), 'category tab items have stable identities')
+assert(
+  new Set(tabItemIds).size === tabItemIds.length,
+  'category tab React keys are unique across all menu groups',
+)
+
+const addableItems = [
+  ...tabItems,
+  ...data.PIZZA_FLAVOUR_ITEMS,
+  data.SEEKH_PIZZA_ITEM,
+  ...data.PIZZA_SIDE_ITEMS,
+  ...data.COMBO_DEAL_ITEMS,
+  ...data.PIZZA_DEAL_ITEMS,
+].filter(Boolean)
+const addableIds = addableItems.map((item) => item.id)
+assert(
+  addableItems.every((item) => data.ITEMS_BY_ID[item.id] === item),
+  'every menu, pizza and deal card uses its canonical catalogue record',
+)
+assert(
+  new Set(addableIds).size === addableIds.length,
+  'all add-to-cart surfaces have unique item identities across sections',
+)
+assert(
+  addableItems.length === data.ALL_ITEMS.length &&
+    addableIds.every((id) => data.ITEMS_BY_ID[id]),
+  'all searchable catalogue records appear exactly once across add-to-cart surfaces',
+)
+
+let fullCatalogCart = { lines: [] }
+for (const item of addableItems) {
+  fullCatalogCart = cart.cartReducer(fullCatalogCart, {
+    type: 'add',
+    line: cart.buildLine(item, { variant: item.variants?.[0]?.label ?? null }),
+  })
+}
+assert(
+  fullCatalogCart.lines.length === addableItems.length &&
+    fullCatalogCart.lines.every((line) => line.qty === 1),
+  'adding every item from every section creates one independent cart line per item',
+)
+
 assert(
   data.ALL_ITEMS.every((item) => typeof item.name === 'string' && item.name.length > 0),
   'every searchable item is named',
