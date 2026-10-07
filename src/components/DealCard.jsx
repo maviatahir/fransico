@@ -1,22 +1,12 @@
-import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 
 import { Highlight } from './MenuCard'
-import { useCart } from '../hooks/useCart'
 import { buildLine } from '../lib/cart'
 import { formatPrice } from '../data/menu'
 import { cn } from '../lib/utils'
+import CardCartControl from './CardCartControl'
 
 export default function DealCard({ deal, index = 0, query = '', accent = 'gold' }) {
-  const { add } = useCart()
-  const [justAdded, setJustAdded] = useState(false)
-
-  useEffect(() => {
-    if (!justAdded) return undefined
-    const timer = window.setTimeout(() => setJustAdded(false), 1400)
-    return () => window.clearTimeout(timer)
-  }, [justAdded])
-
   const isCrimson = accent === 'crimson'
   const badgeGradient = isCrimson
     ? 'from-pizza-red to-pizza-red-deep'
@@ -26,10 +16,7 @@ export default function DealCard({ deal, index = 0, query = '', accent = 'gold' 
     : 'group-hover:shadow-[0_28px_70px_-30px_rgba(217,119,6,0.4)]'
   const haloColor = isCrimson ? 'bg-pizza-red/18' : 'bg-gold/18'
 
-  const handleAdd = () => {
-    add(buildLine(deal))
-    setJustAdded(true)
-  }
+  const line = buildLine(deal)
 
   return (
     <motion.article
@@ -71,18 +58,7 @@ export default function DealCard({ deal, index = 0, query = '', accent = 'gold' 
       </h3>
 
       <div className="relative mt-auto pt-5">
-        <button
-          type="button"
-          onClick={handleAdd}
-          className={cn(
-            'h-10 w-full cursor-pointer rounded-full border text-[0.75rem] font-bold whitespace-nowrap transition-all duration-300',
-            justAdded
-              ? 'border-emerald-500 bg-emerald-500 text-white'
-              : 'border-line-strong text-muted hover:border-gold hover:bg-gold hover:text-ink-on-accent',
-          )}
-        >
-          {justAdded ? 'Added to Cart ✓' : 'Add to Cart'}
-        </button>
+        <CardCartControl line={line} fullWidth />
       </div>
     </motion.article>
   )

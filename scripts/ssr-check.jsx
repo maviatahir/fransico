@@ -680,6 +680,26 @@ assert(
   message.includes(`Grand Total: ${data.formatPrice(1429 + data.DELIVERY_CHARGE)}`),
   'WhatsApp grand total is calculated from subtotal plus one delivery fee',
 )
+assert(
+  message === [
+    'FRANSICO — ORDER REQUEST',
+    '',
+    'Delivery Address',
+    'House 12, Street 4, Model Town, Lahore',
+    '',
+    'Order Details',
+    `• 1x ${malaiTikka.name} (Leg) — Rs. 380`,
+    `• 1x ${pizzaBase.name} Pizza (Regular) + Cheese + Meat — Rs. 1,049`,
+    '',
+    'Items Subtotal: Rs. 1,429',
+    'Delivery Charges: Rs. 100 (Fixed)',
+    '',
+    'Grand Total: Rs. 1,529',
+    '',
+    'Please confirm my order and delivery time.',
+  ].join('\n'),
+  'WhatsApp order message follows the requested exact layout',
+)
 assert(!message.includes('Order Total'), 'old ambiguous total label is removed')
 assert(!message.includes('Total Amount'), 'must not call it a final payable total')
 assert(

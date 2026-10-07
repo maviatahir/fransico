@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 
 import { buildLine } from '../lib/cart'
-import { useCart } from '../hooks/useCart'
 import { formatPrice, unitPrice } from '../data/menu'
+import CardCartControl from './CardCartControl'
 
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -50,22 +50,10 @@ export default function MenuCard({
 
   const [option, setOption] = useState(() => options?.[0]?.label ?? null)
   const [toppings, setToppings] = useState([])
-  const [justAdded, setJustAdded] = useState(false)
-  const { add } = useCart()
-
-  useEffect(() => {
-    if (!justAdded) return undefined
-    const timer = window.setTimeout(() => setJustAdded(false), 1400)
-    return () => window.clearTimeout(timer)
-  }, [justAdded])
 
   const selected = options?.find((entry) => entry.label === option) ?? null
   const price = unitPrice(item, option, toppings)
-
-  const emit = () => {
-    add(buildLine(item, { variant: option, toppings }))
-    setJustAdded(true)
-  }
+  const line = buildLine(item, { variant: option, toppings })
 
   const toggleTopping = (name) => {
     setToppings((current) =>
@@ -181,17 +169,7 @@ export default function MenuCard({
           </AnimatePresence>
         </div>
 
-        <button
-          type="button"
-          onClick={emit}
-          className={`h-10 shrink-0 cursor-pointer rounded-full border px-4 text-[0.72rem] font-bold whitespace-nowrap transition-all duration-200 ${
-            justAdded
-              ? 'border-emerald-500 bg-emerald-500 text-white'
-              : 'border-line-strong bg-surface-2 text-ink hover:border-gold hover:bg-gold hover:text-ink-on-accent'
-          }`}
-        >
-          {justAdded ? 'Added ✓' : 'Add to Cart'}
-        </button>
+        <CardCartControl line={line} />
       </div>
 
 {hasToppings ? (
